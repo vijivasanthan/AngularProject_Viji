@@ -1,0 +1,90 @@
+<ion-content fullscreen="true">
+   <ion-header>
+      <ion-grid>
+         <ion-row class="ion-justify-content-center">
+            <ion-col size="8">
+               <ion-img src="../../assets/logos/logo-m-butler.svg" style="margin: 50px 0"></ion-img>
+            </ion-col>
+         </ion-row>
+      </ion-grid>
+
+      <ion-toolbar class="tabToolbar" *ngIf="!showRecoverPanel">
+         <ion-row style="margin:20px 0;">
+            <ion-col size="6" style="text-align: right;">
+               <ion-button class="tabButton" color="light" fill="clear">{{"login.signin" | translate}}<span></span></ion-button>
+            </ion-col>
+            <ion-col size="6" style="text-align: left;">
+               <ion-button class="tabButton" color="light" fill="clear" routerLink="/register">{{"login.register" | translate}}</ion-button>
+            </ion-col>
+         </ion-row>
+      </ion-toolbar>
+   </ion-header>
+
+   <div *ngIf="showLoginPanel">
+
+      <form [formGroup]="loginForm" novalidate>
+
+         <ion-item lines="none" [class]="loginForm.controls.email.valid || loginSubmitted === false ? '' : 'formFieldError'">
+            <ion-label position="stacked">{{"login.email" | translate}}</ion-label>
+            <ion-input type="email" name="email" formControlName="email" spellcheck="false" autocapitalize="on" placeholder="name@email.com" (ionFocus)="resetErrorMsg()"></ion-input>
+         </ion-item>
+         <p class="formFieldMsg error" [hidden]="!loginForm.controls.email.errors?.required || loginSubmitted === false">{{"login.email_required" | translate}}</p>
+
+         <ion-item class="passwordField" lines="none" [class]="loginForm.controls.password.valid || loginSubmitted === false ? '' : 'formFieldError'">
+            <ion-label position="stacked">{{"login.password" | translate}}</ion-label>
+            <app-show-hide-password>
+               <ion-input type="password" name="password" formControlName="password" spellcheck="false" placeholder="*****"></ion-input>
+            </app-show-hide-password>
+         </ion-item>
+         <p class="formFieldMsg error" [hidden]="!loginForm.controls.password.errors?.required || loginSubmitted === false">{{"login.password_required" | translate}}</p>
+
+         <ion-row *ngIf="apiErrorMsg">
+            <ion-col size="12">
+               <p class="apiErrorMsg">
+                  <ion-icon slot="start" name="icon-cross" src="/assets/icon/close.svg" class="msgIcon"></ion-icon>
+                  <span>{{apiErrorMsg}}</span>
+               </p>
+            </ion-col>
+         </ion-row>
+      </form>
+
+      <ion-row style="margin-top: 30px">
+         <ion-col size="12">
+            <ion-button color="primary" shape="round" expand="block" (click)="login()">{{"login.signin" | translate}}</ion-button>
+         </ion-col>
+         <ion-col size="12">
+            <ion-button color="tertiary" fill="clear" expand="block" (click)="panelSwitch('recover')">{{"login.forgot_password" | translate}}</ion-button>
+         </ion-col>
+      </ion-row>
+
+   </div>
+
+   <div *ngIf="showRecoverPanel" style="margin-top: 60px">
+
+      <ion-row>
+         <ion-col size="12">
+            <h2 style="padding:0 10px">{{"login.forgot_password" | translate}}</h2>
+         </ion-col>
+      </ion-row>
+
+      <form [formGroup]="lostpwdForm" novalidate>
+
+         <ion-item lines="none">
+            <ion-label position="stacked">{{"login.email" | translate}}</ion-label>
+            <ion-input type="email" name="email" formControlName="email" spellcheck="false" autocapitalize="off" placeholder="name@email.nl" required></ion-input>
+         </ion-item>
+         <p class="formFieldMsg error" [hidden]="lostpwdForm.controls.email.valid || lostpwdSubmitted === false">{{"login.email_required" | translate}}</p>
+
+      </form>
+
+      <ion-row style="margin-top: 30px">
+         <ion-col size="12">
+            <ion-button color="primary" expand="block" shape="round" (click)="lostPassword()" [disabled]="!lostpwdForm.valid">{{"login.reset_password" | translate}}</ion-button>
+         </ion-col>
+         <ion-col size="12">
+            <ion-button color="tertiary" fill="clear" expand="block" (click)="panelSwitch('login')">{{"login.cancel" | translate}}</ion-button>
+         </ion-col>
+      </ion-row>
+
+   </div>
+</ion-content>

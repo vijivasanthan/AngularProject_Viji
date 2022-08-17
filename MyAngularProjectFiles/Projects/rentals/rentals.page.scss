@@ -1,0 +1,84 @@
+.rentalLocationField {
+   padding: 5px 0;
+   width:100%;
+   min-height: 20px;
+   background:transparent;
+   border-bottom:1px solid #fff;
+   font-size: 16px;
+}
+
+.vehicletypeToolbar {
+   background-color: var(--mca-grey-dark-disabled);
+   border-radius: 30px;
+   margin-top: calc( 30px + env(safe-area-inset-top)) !important;
+   position: relative;
+   z-index: 999;
+   margin-left: 15px;
+   margin-right: 15px;
+}
+
+.vehicleIcon {
+   margin: 5px 10px;
+   font-size: 35px;
+}
+
+.selectVehicleButton {
+   margin: 5px 5px;
+}
+
+.vehicletypeToolbar ion-item {
+   --background: transparent;
+}
+
+.vehicletypeToolbar form ion-item ion-label.checkbox-label {
+   font-family: 'WorkSans-Medium', 'Helvetica Neue', 'Roboto', 'sans-serif'!important;
+   font-size: 11px !important;
+}
+
+.chkDropoff {
+   margin-inline-end: 10px;
+}
+
+.vehicletypeToolbar ion-col.selected {
+   background-color: var(--mca-grey-dark);
+   --background: var(--mca-grey-dark) !important;
+}
+
+.selected {
+   color: var(--mca-background-orange);
+   border-radius: 30px;
+}
+
+#map {
+   height: 100%;
+   width: 100%;
+   position: absolute;
+   top: 0;
+   bottom: 0;
+}
+
+.drawer {
+   position: absolute;
+   width: 100%;
+   border-radius: 30px;
+   //bottom: calc(-72vh + env(safe-area-inset-bottom));
+   //height: 86vh;
+   bottom: -285px;
+   height: 400px;
+   z-index: 11;
+   background: var(--mca-background-dark);
+}
+
+.drawer-pull {
+   background: var(--mca-background-light);
+   height: 5px;
+   width: 50px;
+   border-radius: 2px;
+   margin-top: 5px;
+}
+
+form ion-item ion-label.rentals-checkbox-label {
+   font-family: 'WorkSans-Medium', 'Helvetica Neue', 'Roboto', 'sans-serif'!important;
+   font-size: 11px !important;
+   margin: 0;
+}

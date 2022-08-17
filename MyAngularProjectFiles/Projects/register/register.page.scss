@@ -1,0 +1,145 @@
+ion-header ion-toolbar {
+   border-bottom: none;
+   --background: #111D29;
+}
+
+//
+.swiper-slide {
+   font-size: 16px;
+   padding-top: 40px;
+}
+
+ion-slides {
+   height: 100%;
+}
+
+ion-slide {
+   align-items: flex-start;
+   overflow-y: auto;
+}
+
+//
+form ion-item ion-text,
+form ion-item ion-icon {
+   color: var(--mca-text-light);
+}
+
+form ion-item .ion-invalid ion-input {
+  background: #FFFFFF;
+}
+
+//
+.registrationSteps ion-label span {
+   display: inline-block;
+}
+
+span.stepCircle {
+   display: inline-block;
+   height: 16px;
+   width: 16px;
+   line-height: 14px;
+
+   margin-right: 5px;
+
+   border-radius: 100%;
+   border: var(--mca-line-light) solid 1px;
+   color: var(--mca-text-light);
+   text-align: center;
+   font-size: 0.75em;
+
+   background: var(--mca-background-dark);
+}
+
+span.stepCircle.active {
+   color: var(--mca-text-dark);
+   background: var(--mca-line-light) ;
+}
+
+span.stepLabel {
+   font-size: 11px;
+}
+
+//
+.successImg {
+   width: 250px;
+   height: 150px;
+   margin: 20px auto;
+}
+
+.successText {
+   font-size: 30px;
+   font-weight: bold;
+}
+
+.verifiedText {
+}
+
+//
+.msgIcon {
+   position: relative;
+   top: 8px;
+   font-size: 28px;
+}
+
+//
+ion-button.tabButton {
+   margin: 0;
+}
+
+ion-button.tabButton span {
+   position: absolute;
+   bottom: 10px;
+   width: 100%;
+   border-bottom: 1px solid #ffffff;
+}
+
+/* sticky footer */
+.has-sticky-footer {
+   min-height: calc(100vh - 380px);
+}
+
+.has-sticky-footer.no-header {
+   min-height: calc(100vh - 165px);
+}
+
+.stickyFooter {
+   padding: 30px 0;
+}
+
+////Datepicker Modal
+//ion-modal {
+//   // --background: rgba(44, 39, 45, 0.9);
+//   //--background: rgba(72, 86, 100, 0.9);
+//   --background: transparent !important;
+//}
+//
+//ion-content.searchDatetimeContent {
+//   --padding-top: 220px;
+//   --padding-start: 25px;
+//   --padding-end: 25px;
+//   --background: transparent !important;
+//}
+//
+//ion-datetime.searchDatetime {
+//   width: 100%;
+//   max-width: 100%;
+//   background: var(--mca-background-dark);
+//   border-radius: 8px;
+//}
+
+@media only screen and (max-width: 350px) {
+
+   .registrationSteps ion-label span {
+      margin: 0 auto;
+      display: block;
+      text-align: center;
+   }
+
+
+   span.stepCircle {
+      margin-right: 0;
+      margin-bottom: 5px !important;
+      display: block;
+   }
+
+}

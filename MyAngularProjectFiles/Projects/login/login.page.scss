@@ -1,0 +1,14 @@
+ion-header ion-toolbar {
+   border-bottom: none;
+}
+
+ion-button.tabButton {
+   margin: 0;
+}
+
+ion-button.tabButton span {
+   position: absolute;
+   bottom: 10px;
+   width: 100%;
+   border-bottom: 1px solid #ffffff;
+}

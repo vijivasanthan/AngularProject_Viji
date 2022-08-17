@@ -1,0 +1,475 @@
+<ion-header>
+   <ng-container *ngIf="showHeader">
+
+      <ion-toolbar>
+         <ion-button color="tertiary" fill="clear" (click)="ionSlides.slidePrev()">prev</ion-button>
+         <ion-button color="tertiary" fill="clear" (click)="ionSlides.slideNext()">next</ion-button>
+      </ion-toolbar>
+
+      <ion-toolbar class="tabToolbar">
+         <ion-row style="margin:25px 0;">
+            <ion-col size="6" style="text-align: right;">
+               <ion-button class="tabButton" color="light" fill="clear" routerLink="/login">{{"register.signin" | translate}}</ion-button>
+            </ion-col>
+            <ion-col size="6" style="text-align: left;">
+               <ion-button class="tabButton" color="light" fill="clear">{{"register.register" | translate}}<span></span></ion-button>
+            </ion-col>
+         </ion-row>
+      </ion-toolbar>
+
+      <ion-toolbar>
+         <ion-grid [hidden]="slideNumber === 5 || slideNumber === 6">
+            <ion-row>
+               <ion-col size="12">
+                  <ion-label>
+                     <h2 class="text">{{"register.verification_process" | translate}}</h2>
+                  </ion-label>
+               </ion-col>
+            </ion-row>
+         </ion-grid>
+
+         <ion-grid class="registrationSteps" [hidden]="slideNumber === 5 || slideNumber === 6">
+            <ion-row>
+               <ion-col size="4">
+                  <ion-label>
+                     <span class="stepCircle" [class]="registrationStep.verifyEmailPhone ? 'active' : ''">1</span>
+                     <span class="stepLabel">{{"register.email_phone" | translate}}</span>
+                  </ion-label>
+               </ion-col>
+
+               <ion-col size="4">
+                  <ion-label>
+                     <span class="stepCircle" [class]="registrationStep.verifyPersonal ? 'active' : ''">2</span>
+                     <span class="stepLabel" style="position: absolute">{{"register.personal_details" | translate}}</span>
+                  </ion-label>
+               </ion-col>
+
+               <ion-col size="4">
+                  <ion-label>
+                     <span class="stepCircle" [class]="registrationStep.verifyId ? 'active' : ''">3</span>
+                     <span class="stepLabel">ID</span>
+                  </ion-label>
+               </ion-col>
+            </ion-row>
+         </ion-grid>
+      </ion-toolbar>
+
+   </ng-container>
+</ion-header>
+
+
+<ion-content>
+
+   <ion-slides #slides [options]="slideOpts" (ionSlideWillChange)="slideWillChange($event)">
+
+      <!--EMAIL VERIFY-->
+      <ion-slide id="verify_email">
+
+         <form [formGroup]="emailForm" novalidate>
+
+            <div class="has-sticky-footer"> <!--has-sticky-footer-->
+
+               <ion-item lines="none" [class]="emailForm.controls.email.valid || emailSubmitted === false ? '' : 'formFieldError'">
+                  <ion-label position="stacked">{{"register.email" | translate}}</ion-label>
+                  <ion-input type="email" name="email" formControlName="email" spellcheck="false" autocapitalize="on" placeholder="name@email.com"></ion-input>
+               </ion-item>
+
+               <p class="formFieldMsg error" [hidden]="!emailForm.controls.email.errors?.required || emailSubmitted === false">{{"register.email_required" | translate}}</p>
+               <p class="formFieldMsg error" [hidden]="!emailForm.controls.email.errors?.email || emailSubmitted === false">{{"register.email_invalid" | translate}}</p>
+
+               <ion-row style="margin-top: 15px">
+                  <ion-col size="12">
+                     <ion-button color="secondary" shape="round" expand="block" (click)="getVerificationCode('email')" *ngIf="!showCodePanel">{{"register.verify_email" | translate}}</ion-button>
+                     <ion-button color="tertiary" shape="round" fill="clear" (click)="getVerificationCode('email')" *ngIf="showCodePanel"><span class="underline">{{"register.resend_code" | translate}}</span></ion-button>
+                  </ion-col>
+               </ion-row>
+
+               <ion-row *ngIf="apiErrorMsg">
+                  <ion-col size="12">
+                     <p class="apiErrorMsg">
+                        <ion-icon slot="start" name="icon-cross" src="/assets/icon/close.svg" class="msgIcon"></ion-icon>
+                        <span>{{apiErrorMsg}}</span>
+                     </p>
+                  </ion-col>
+               </ion-row>
+
+               <ion-row *ngIf="showCodePanel">
+                  <ion-col size="12" style="padding:15px">
+                     <p style="margin:0">{{"message.code_fill_email" | translate}}</p>
+                  </ion-col>
+
+                  <ion-col size="12">
+                     <code-input name="emailCode" class="code-input"
+                        #codeInputEmail
+                        [isCodeHidden]="false"
+                        [class]="verificationStatus.type === 'error' ? 'formFieldError' : ''"
+                        [codeLength]="5"
+                        (codeChanged)="onCodeChanged($event)"
+                        (codeCompleted)="onCodeCompleted($event)">
+                     </code-input>
+                  </ion-col>
+
+                  <ion-col size="12" *ngIf="verificationStatus.type === 'error'">
+                     <ion-icon src="/assets/icon/close.svg" class="msgIcon"></ion-icon>
+                     <span style="margin-left:10px">{{verificationStatus.message}}</span>
+                  </ion-col>
+               </ion-row>
+
+            </div> <!--end has-sticky-footer-->
+
+            <div class="stickyFooter"> <!--sticky-footer-->
+
+               <ion-row>
+                  <ion-col size="12">
+                     <ion-button color="primary" expand="block" shape="round" (click)="checkVerificationCode('email')" [disabled]="verificationCode?.length < 5 || verificationStatus.type === 'pending'">
+                        <span *ngIf="verificationStatus.type !== 'pending'">{{"register.next" | translate}}</span>
+                        <ion-spinner *ngIf="verificationStatus.type === 'pending'" name="crescent"></ion-spinner>
+                     </ion-button>
+                  </ion-col>
+               </ion-row>
+
+            </div> <!--end sticky-footer-->
+
+         </form>
+
+      </ion-slide>
+
+      <!--PHONE VERIFY-->
+      <ion-slide id="verify_phone">
+         <form [formGroup]="phoneForm" novalidate>
+
+            <div class="has-sticky-footer"> <!--has-sticky-footer-->
+
+               <ion-row>
+                  <ion-label class="standalone-label" position="stacked">{{"register.phone" | translate}}</ion-label>
+                  <ion-col size="4" class="ion-no-padding">
+                     <ion-item class="ion-no-padding-right" lines="none" [class]="phoneForm.controls.phone.valid || phoneSubmitted === false ? '' : 'formFieldError'">
+                        <ion-select name="countryCode" formControlName="countryCode" okText="Selecteren" cancelText="Annuleren" mode="md" [interfaceOptions]="countrySelectOptions" (ionChange)="renderPhoneNumber()">
+                           <!--                        <ion-select-option value="+31">Nederland</ion-select-option>-->
+                           <!--                        <ion-select-option value="+32">Belgie</ion-select-option>-->
+                           <!--                        <ion-select-option value="+33">Duitsland</ion-select-option>-->
+                           <ion-select-option *ngFor="let country of countries" [value]="country.dial_code">{{country.name}}</ion-select-option>
+                        </ion-select>
+                     </ion-item>
+                  </ion-col>
+
+                  <ion-col size="8" class="ion-no-padding">
+                     <ion-item class="ion-no-padding-left" lines="none" [class]="phoneForm.controls.phone.valid || phoneSubmitted === false ? '' : 'formFieldError'">
+                        <ion-input type="tel" name="phone" formControlName="phone" maxlength="10" spellcheck="false" placeholder="6 12 34 56 78" (ionBlur)="renderPhoneNumber()"><span style="margin:0 5px 0 15px">{{phoneForm.value.countryCode}}</span></ion-input>
+                     </ion-item>
+                  </ion-col>
+               </ion-row>
+
+               <p class="formFieldMsg error" [hidden]="!phoneForm.controls.phone.errors?.required || phoneSubmitted === false">{{"register.phone_required" | translate}}</p>
+               <p class="formFieldMsg error" [hidden]="!phoneForm.controls.phone.errors?.pattern || phoneSubmitted === false">{{"register.phone_invalid" | translate}}</p>
+
+               <ion-row style="margin-top: 15px">
+                  <ion-col size="12">
+                     <ion-button color="secondary" shape="round" expand="block" (click)="getVerificationCode('phone')" *ngIf="!showCodePanel">{{"register.verify_phone" | translate}}</ion-button>
+                     <ion-button color="tertiary" shape="round" fill="clear" (click)="getVerificationCode('phone')" *ngIf="showCodePanel"><span class="underline">{{"register.resend_code" | translate}}</span></ion-button>
+                  </ion-col>
+               </ion-row>
+
+               <ion-row *ngIf="apiErrorMsg">
+                  <ion-col size="12">
+                     <p class="apiErrorMsg">
+                        <ion-icon slot="start" name="icon-cross" src="/assets/icon/close.svg" class="msgIcon"></ion-icon>
+                        <span>{{apiErrorMsg}}</span>
+                     </p>
+                  </ion-col>
+               </ion-row>
+
+               <ion-row *ngIf="showCodePanel">
+                  <ion-col size="12" style="padding:15px">
+                     <p style="margin:0">{{"message.code_fill_sms" | translate}}</p>
+                  </ion-col>
+
+                  <ion-col size="12">
+                     <code-input name="phoneCode" class="code-input"
+                                 #codeInputPhone
+                                 [isCodeHidden]="false"
+                                 [codeLength]="5"
+                                 (codeChanged)="onCodeChanged($event)"
+                                 (codeCompleted)="onCodeCompleted($event)">
+                     </code-input>
+                  </ion-col>
+               </ion-row>
+
+               <ion-row>
+                  <ion-col size="12" *ngIf="verificationStatus.type === 'error'">
+                     <ion-icon src="/assets/icon/close.svg" class="msgIcon"></ion-icon>
+                     <span style="margin-left:10px">{{verificationStatus.message}}</span>
+                  </ion-col>
+               </ion-row>
+
+            </div> <!--end has-sticky-footer-->
+
+            <div class="stickyFooter"> <!--sticky-footer-->
+
+               <ion-row>
+                  <ion-col size="12">
+                     <ion-button color="primary" expand="block" shape="round" (click)="checkVerificationCode('phone')" [disabled]="verificationCode?.length < 5 || verificationStatus.type === 'pending'">
+                        <span *ngIf="verificationStatus.type !== 'pending'">{{"register.next" | translate}}</span>
+                        <ion-spinner *ngIf="verificationStatus.type === 'pending'" name="crescent"></ion-spinner>
+                     </ion-button>
+                  </ion-col>
+               </ion-row>
+
+            </div> <!--end sticky-footer-->
+
+         </form>
+      </ion-slide>
+
+      <!--PERSONAL DETAILS-->
+      <ion-slide id="personal_details">
+         <form [formGroup]="personalDetails">
+
+            <div class="has-sticky-footer"> <!--has-sticky-footer-->
+
+               <ion-row>
+                  <ion-col size="3" class="ion-no-padding">
+                     <ion-item lines="none">
+                        <ion-label position="stacked">{{"register.title" | translate}}</ion-label>
+                        <ion-select name="salutation" mode="md" okText="Selecteren" cancelText="Annuleren" formControlName="salutation">
+                           <ion-select-option value="mr.">Mr.</ion-select-option>
+                           <ion-select-option value="mrs.">Mrs.</ion-select-option>
+                           <ion-select-option value="ms.">Ms.</ion-select-option>
+                        </ion-select>
+                     </ion-item>
+                  </ion-col>
+                  <ion-col size="9" class="ion-no-padding">
+                     <ion-item lines="none" [class]="personalDetails.controls.firstname.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                        <ion-label position="stacked">{{"register.firstname" | translate}}</ion-label>
+                        <ion-input type="text" name="firstname" formControlName="firstname" spellcheck="false"></ion-input>
+                     </ion-item>
+                  </ion-col>
+               </ion-row>
+               <p class="formFieldMsg">{{"message.title_firstname" | translate}}</p>
+
+               <ion-row>
+                  <ion-col size="3" class="ion-no-padding">
+                     <ion-item lines="none">
+                        <ion-label position="stacked">Insertion</ion-label>
+                        <ion-input type="text" name="middlename" formControlName="middlename" spellcheck="false"></ion-input>
+                     </ion-item>
+                  </ion-col>
+                  <ion-col size="9" class="ion-no-padding">
+                     <ion-item lines="none" [class]="personalDetails.controls.lastname.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                        <ion-label position="stacked">{{"register.lastname" | translate}}</ion-label>
+                        <ion-input type="text" name="lastname" formControlName="lastname" spellcheck="false"></ion-input>
+                     </ion-item>
+                  </ion-col>
+               </ion-row>
+               <p class="formFieldMsg">{{"message.insertion_lastname" | translate}}</p>
+
+               <ion-row>
+                  <ion-col class="ion-no-padding">
+
+                     <ion-item lines="none" [class]="personalDetails.controls.birthdate.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                        <ion-label position="stacked">{{"register.birthdate" | translate}}</ion-label>
+                        <ion-input name="birthdate" id="open-birthDate">{{ this.personalDetails.value.birthdate | date: 'dd-MM-yyyy' }}</ion-input>
+                        <ion-icon name="calendar-clear-outline" class="helpIcon" [class]="personalDetails.controls.birthdate.valid || personalDetailsVerified === false ? '' : 'formFieldError'"></ion-icon>
+                     </ion-item>
+
+                     <!--date-modal-->
+                     <ion-modal class="date-picker" show-backdrop="false" trigger="open-birthDate">
+                        <ng-template>
+                           <ion-content class="searchDatetimeContent">
+                              <ion-datetime class="searchDatetime"
+                                 #birthDate presentation="date" (ionChange)="modalDateChanged(birthDate.value)">
+                                 <ion-buttons slot="buttons">
+                                    <ion-button (click)="closeModal()">Cancel</ion-button>
+                                    <ion-button color="primary" (click)="selectDateModal()">Select Date</ion-button>
+                                 </ion-buttons>
+                              </ion-datetime>
+                           </ion-content>
+                        </ng-template>
+                     </ion-modal>
+                     <!--date-modal-->
+                     <p class="formFieldMsg error" [hidden]="!personalDetails.controls.birthdate.errors?.too_young">{{"error.app.err_age_limit" | translate}}</p>
+
+                  </ion-col>
+               </ion-row>
+
+               <ion-item lines="none" [class]="personalDetails.controls.birthplace.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                  <ion-label position="stacked">{{"register.placeofbirth" | translate}}</ion-label>
+                  <ion-input type="text" name="birthplace" formControlName="birthplace" spellcheck="false"></ion-input>
+               </ion-item>
+
+               <ion-item lines="none" [class]="personalDetails.controls.birthcountry.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                  <ion-label position="stacked">{{"register.countryofbirth" | translate}}</ion-label>
+                  <ion-select name="birthcountry" mode="md" okText="Selecteren" cancelText="Annuleren" formControlName="birthcountry">
+                     <ion-select-option *ngFor="let country of countries" value="{{country.name}}">{{country.name}}</ion-select-option>
+                  </ion-select>
+               </ion-item>
+
+               <ion-row>
+                  <ion-col size="7" class="ion-no-padding">
+                     <ion-item lines="none" [class]="personalDetails.controls.street.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                        <ion-label position="stacked">{{"register.address" | translate}}</ion-label>
+                        <ion-input type="text" name="street" formControlName="street" spellcheck="false"></ion-input>
+                     </ion-item>
+                  </ion-col>
+                  <ion-col size="5" class="ion-no-padding">
+                     <ion-item lines="none" [class]="personalDetails.controls.number.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                        <ion-label position="stacked">{{"register.housenumber" | translate}}</ion-label>
+                        <ion-input type="text" name="number" formControlName="number" spellcheck="false"></ion-input>
+                     </ion-item>
+                  </ion-col>
+               </ion-row>
+
+               <ion-row>
+                  <ion-col size="7" class="ion-no-padding">
+                     <ion-item lines="none">
+                        <ion-label position="stacked">{{"register.additional_housenumber" | translate}}</ion-label>
+                        <ion-input type="text" name="addition" formControlName="addition" spellcheck="false"></ion-input>
+                     </ion-item>
+                  </ion-col>
+                  <ion-col size="5" class="ion-no-padding">
+                     <ion-item lines="none" [class]="personalDetails.controls.postcode.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                        <ion-label position="stacked">{{"register.postal_code" | translate}}</ion-label>
+                        <ion-input type="text" name="postcode" formControlName="postcode" spellcheck="false"></ion-input>
+                     </ion-item>
+                  </ion-col>
+               </ion-row>
+
+               <ion-item lines="none" [class]="personalDetails.controls.city.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                  <ion-label position="stacked">{{"register.city" | translate}}</ion-label>
+                  <ion-input type="text" name="city" formControlName="city" spellcheck="false"></ion-input>
+               </ion-item>
+
+               <ion-item lines="none" [class]="personalDetails.controls.country.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                  <ion-label position="stacked">{{"register.country" | translate}}</ion-label>
+                  <ion-select name="country" mode="md" okText="Selecteren" cancelText="Annuleren" formControlName="country">
+                     <ion-select-option *ngFor="let country of countries" value="{{country.name}}">{{country.name}}</ion-select-option>
+                  </ion-select>
+               </ion-item>
+
+               <ion-item class="passwordField" lines="none" [class]="personalDetails.controls.password.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                  <ion-label position="stacked">{{"register.password" | translate}}</ion-label>
+                  <app-show-hide-password>
+                     <ion-input type="password" name="password" formControlName="password" spellcheck="false"></ion-input>
+                  </app-show-hide-password>
+               </ion-item>
+               <p class="formFieldMsg" [class]="!personalDetails.controls.password.errors?.not_strong ? '' : 'error'">{{"register.password_not_strong" | translate}}</p>
+
+               <ion-item class="passwordField" lines="none" [class]="personalDetails.controls.passwordRepeat.valid || personalDetailsVerified === false ? '' : 'formFieldError'">
+                  <ion-label position="stacked">{{"register.password_repeat" | translate}}</ion-label>
+                  <app-show-hide-password>
+                     <ion-input type="password" name="passwordRepeat" formControlName="passwordRepeat" spellcheck="false"></ion-input>
+                  </app-show-hide-password>
+               </ion-item>
+               <p class="formFieldMsg error" [hidden]="!personalDetails.controls.passwordRepeat.errors?.must_match">{{"register.password_not_match" | translate}}</p>
+
+            </div> <!--end has-sticky-footer-->
+
+            <div class="stickyFooter"> <!--sticky-footer-->
+
+               <ion-row>
+                  <ion-col size="12">
+<!--                     <ion-button color="primary" expand="block" shape="round" (click)="moveToStep('termsConditions')" [disabled]="!personalDetails.valid">{{"register.next" | translate}}</ion-button>-->
+                     <ion-button color="primary" expand="block" shape="round" (click)="moveToStep('termsConditions')" [disabled]="!personalDetails.valid">{{"register.next" | translate}}</ion-button>
+                  </ion-col>
+               </ion-row>
+
+            </div> <!--end sticky-footer-->
+
+         </form>
+      </ion-slide>
+
+      <!--TERMS & CONDITIONS-->
+      <ion-slide id="terms_conditions">
+         <form [formGroup]="termsConditions">
+
+            <div class="has-sticky-footer no-header"> <!--has-sticky-footer-->
+
+               <ion-item lines="none" class="checkbox-wrapper">
+                  <ion-checkbox mode="md" slot="start" name="agree_terms" formControlName="agree_terms"></ion-checkbox>
+                  <ion-label class="checkbox-label ion-text-wrap">{{"register.agree_terms_conditions" | translate}}<a target="_blank" href="https://mcaeurope.org/disclaimer/">{{"register.terms_conditions" | translate}}</a></ion-label>
+               </ion-item>
+
+               <ion-item lines="none" class="checkbox-wrapper">
+                  <ion-checkbox mode="md" slot="start" name="share_data" formControlName="share_data"></ion-checkbox>
+                  <ion-label class="checkbox-label ion-text-wrap">{{"register.share_data" | translate}}</ion-label>
+               </ion-item>
+
+               <ion-item lines="none" class="checkbox-wrapper">
+                  <ion-checkbox mode="md" slot="start" name="privacy_statement" formControlName="privacy_statement"></ion-checkbox>
+                  <ion-label class="checkbox-label ion-text-wrap">{{"register.agree_privacy_statement" | translate}}</ion-label>
+               </ion-item>
+
+               <ion-item lines="none" class="checkbox-wrapper" style="margin-top: 60px">
+                  <ion-checkbox mode="md" slot="start" name="get_updates" formControlName="get_updates"></ion-checkbox>
+                  <ion-label class="checkbox-label ion-text-wrap">{{"register.updates" | translate}}</ion-label>
+               </ion-item>
+
+               <ion-item lines="none" class="checkbox-wrapper">
+                  <ion-checkbox mode="md" slot="start" name="get_offers" formControlName="get_offers"></ion-checkbox>
+                  <ion-label class="checkbox-label ion-text-wrap">{{"register.receive_offers_info" | translate}}</ion-label>
+               </ion-item>
+
+               <ion-row>
+                  <ion-col size="12" style="padding-left:15px;padding-right:15px">
+<!--                     <ion-input style="visibility: hidden" name="privacyStatement" formControlName="privacy_statement"></ion-input>-->
+                     {{"register.privacy_statement" | translate}}<a target="_blank" href="https://mcaeurope.org/disclaimer/">{{"register.privacy" | translate}}</a>
+                  </ion-col>
+               </ion-row>
+
+            </div> <!--end has-sticky-footer-->
+
+            <div class="stickyFooter"> <!--sticky-footer-->
+
+               <ion-row>
+                  <ion-col size="12">
+                     <ion-button color="primary" expand="block" shape="round" (click)="registerAccount();" [disabled]="!termsConditions.valid">{{"register.next" | translate}}</ion-button>
+                  </ion-col>
+               </ion-row>
+
+            </div> <!--end sticky-footer-->
+
+         </form>
+      </ion-slide>
+
+
+      <!--SUCCESS IMAGE-->
+      <ion-slide id="registration_success">
+         <form>
+
+            <div class="has-sticky-footer no-header"> <!--has-sticky-footer-->
+
+               <ion-row>
+                  <ion-col size="12">
+                     <ion-img src="/assets/illustration-scooter.svg" class="successImg"></ion-img>
+                  </ion-col>
+               </ion-row>
+
+               <ion-row>
+                  <ion-col size="12">
+                     <span class="successText">{{"register.success" | translate}}</span>
+                  </ion-col>
+               </ion-row>
+
+               <ion-row>
+                  <ion-col size="12">
+                     <span class="verifiedText">{{"register.details_verified" | translate}}</span>
+                  </ion-col>
+               </ion-row>
+
+            </div> <!--end has-sticky-footer-->
+
+            <div class="stickyFooter"> <!--sticky-footer-->
+
+               <ion-row>
+                  <ion-col size="12">
+                     <ion-button color="primary" expand="block" shape="round" (click)="backToLogin()">{{"register.next" | translate}}</ion-button>
+                  </ion-col>
+               </ion-row>
+
+            </div> <!--end sticky-footer-->
+
+         </form>
+      </ion-slide>
+
+   </ion-slides>
+
+</ion-content>

@@ -1,0 +1,146 @@
+<ion-content scrollY="false" [fullscreen]="true">
+
+   <div class="vehicletypeToolbar">
+      <form [formGroup]="vehicleForm">
+
+         <ion-radio-group (ionChange)="radioSelect($event)" name="vehicle_type" formControlName="vehicle_type">
+            <ion-row>
+               <ion-col size="4" [class]="{'selected': (radioValue === 'BIKE')}">
+                  <ion-item [class]="{'selected': (radioValue === 'BIKE')}">
+                     <ion-radio slot="start" value="BIKE" class="selectVehicleButton" mode="md"></ion-radio>
+                     <ion-icon name="bike" [class]="{'selected': (radioValue === 'BIKE')}" class="vehicleIcon" src="/assets/icon/bike.svg"></ion-icon>
+                  </ion-item>
+               </ion-col>
+               <ion-col size="4" [class]="{'selected': (radioValue === 'SCOOTER')}">
+                  <ion-item [class]="{'selected': (radioValue === 'SCOOTER')} ">
+                     <ion-radio slot="start" value="SCOOTER" class="selectVehicleButton" mode="md"></ion-radio>
+                     <ion-icon name="scooter" src="/assets/icon/scooter.svg" class="vehicleIcon" [class]="{'selected': (radioValue === 'SCOOTER')}"></ion-icon>
+                  </ion-item>
+               </ion-col>
+               <ion-col size="4" [class]="{'selected': (radioValue === 'CAR')}">
+                  <ion-item [class]="{'selected': (radioValue === 'CAR')}">
+                     <ion-radio slot="start" value="CAR" class="selectVehicleButton" mode="md"></ion-radio>
+                     <ion-icon [class]="{'selected': (radioValue === 'CAR')}" class="vehicleIcon" name="car" src="/assets/icon/car.svg"></ion-icon>
+                  </ion-item>
+               </ion-col>
+            </ion-row>
+            <span class="formFieldErrorMsg" *ngIf="this.age < 18 && radioValue === 'CAR'">{{"rentals.agelimit_text" | translate}}</span>
+         </ion-radio-group>
+
+      </form>
+   </div>
+
+   <div id="map"></div>
+
+   <!--<app-drawer-rentals (openStateChanged)="toggleBackdrop($event)"></app-drawer-rentals>-->
+<!--from drawer-rentals begin-->
+   <div class="drawer" #drawer>
+      <div class="ion-text-center">
+         <ion-button fill="clear" expand="full" (click)="toggleDrawer()">
+            <div class="drawer-pull"></div>
+         </ion-button>
+      </div>
+
+      <ion-content>
+         <form [formGroup]="rentalForm">
+
+            <ion-row>
+               <ion-col size="12">
+                  <ion-item lines="none">
+                     <ion-label position="stacked">{{"rentals.pickup_point" | translate}}</ion-label>
+<!--                     <ion-input type="text" name="pickupAddress" formControlName="pickupAddress" (click)="searchLocation('pickup')"></ion-input>-->
+                  <div class="rentalLocationField" (click)="searchLocation('pickup')">{{rentalForm.value.pickupAddress}}</div>
+                  </ion-item>
+               </ion-col>
+            </ion-row>
+
+            <ion-row [hidden]="hideDropoff">
+               <ion-col size="12">
+                  <ion-item lines="none">
+                     <ion-label position="stacked">{{"rentals.dropoff_point" | translate}}</ion-label>
+<!--                     <ion-input type="text" name="dropoffAddress" formControlName="dropoffAddress" (click)="searchLocation('drop-off')"></ion-input>-->
+                     <div class="rentalLocationField" (click)="searchLocation('drop-off')">{{rentalForm.value.dropoffAddress}}</div>
+                  </ion-item>
+               </ion-col>
+            </ion-row>
+
+            <ion-row>
+               <ion-col size="12">
+                  <ion-item lines="none">
+                     <ion-checkbox mode="md" slot="start" name="checkDropoff" checked (ionChange)="toggleDropoff($event)"></ion-checkbox>
+                     <ion-label class="rentals-checkbox-label">{{"rentals.dropoff_equals_pickup_points" | translate}}</ion-label>
+                  </ion-item>
+               </ion-col>
+            </ion-row>
+
+            <ion-row>
+               <ion-col size="6">
+
+                  <ion-item>
+                     <ion-label position="stacked">{{"rentals.pickup_date" | translate}}</ion-label>
+                     <ion-input name="pickupStringDate" id="open-pickupDate">{{ this.rentalForm.value.pickupStringDate | date: 'd MMM | HH:mm' }}</ion-input>
+                     <ion-icon class="helpIcon" name="calendar-clear-outline"></ion-icon>
+                  </ion-item>
+
+                  <!--date-modal-->
+                  <ion-modal class="date-picker" show-backdrop="false" trigger="open-pickupDate">
+                     <ng-template>
+                        <ion-content class="searchDatetimeContent">
+                           <ion-datetime class="searchDatetime"
+                                         value={{futureDate}}
+                                         [min]=futureDate
+                                         #pickUpDate
+                                         presentation="date-time"
+                                         (ionChange)="modalDateChanged(pickUpDate.value, 'pickUpDate')">
+                              <ion-buttons slot="buttons">
+                                 <ion-button (click)="closeModal()">{{"rentals.cancel" | translate}}</ion-button>
+                                 <ion-button color="primary" (click)="selectDateModal()">{{"rentals.select_date" | translate}}</ion-button>
+                              </ion-buttons>
+                           </ion-datetime>
+                        </ion-content>
+                     </ng-template>
+                  </ion-modal>
+                  <!--date-modal-->
+
+               </ion-col>
+
+               <ion-col size="6">
+                  <ion-item>
+                     <ion-label position="stacked">{{"rentals.dropoff_date" | translate}}</ion-label>
+                     <ion-input name="dropoffStringDate" id="open-returnDate" >{{ this.rentalForm.value.dropoffStringDate | date: 'd MMM | HH:mm' }}</ion-input>
+                     <ion-icon class="helpIcon" name="calendar-clear-outline"></ion-icon>
+                  </ion-item>
+                  <ion-modal class="date-picker" trigger="open-returnDate">
+                     <ng-template>
+                        <ion-content class="searchDatetimeContent">
+                           <ion-datetime allowOldDates="false" class="searchDatetime"
+                                         value={{futureDate}}
+                                         #returnDate
+                                         presentation="date-time"
+                                         [min]=futureDate
+                                         (ionChange)="modalDateChanged(returnDate.value, 'returnDate')">
+                              <ion-buttons slot="buttons">
+                                 <ion-button (click)="closeModal()">{{"rentals.cancel" | translate}}</ion-button>
+                                 <ion-button color="primary" (click)="selectDateModal()">{{"rentals.select_date" | translate}}</ion-button>
+                              </ion-buttons>
+                           </ion-datetime>
+                        </ion-content>
+                     </ng-template>
+                  </ion-modal>
+               </ion-col>
+
+            </ion-row>
+
+            <ion-row>
+               <ion-col size="12">
+                  <!--               <ion-button color="primary" expand="block" shape="round" (click)="showOffers()" style="margin-top:30px;margin-bottom:15px" [disabled]="!rentalForm.valid">Show pick-up points</ion-button>-->
+                  <ion-button color="primary" expand="block" shape="round" (click)="searchRentalLocation()" style="margin-top:30px;margin-bottom:15px">{{"rentals.show_pickup_points" | translate}}</ion-button>
+               </ion-col>
+            </ion-row>
+
+         </form>
+      </ion-content>
+
+   </div>
+<!--from drawer-rentals end-->
+</ion-content>

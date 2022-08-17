@@ -1,0 +1,57 @@
+ion-item ion-icon.editIcon {
+   top: 10px!important;
+   font-size: 20px;
+}
+
+.changepwdLink {
+   font-size: 11px;
+   font-family: 'WorkSans-Medium', 'Helvetica Neue', 'Roboto', 'sans-serif';
+   color: var(--mca-background-orange);
+   padding-bottom: 100px;
+   padding-left: 10px;
+   margin-top: 20px;
+}
+
+.edit {
+   font-family: 'WorkSans-Medium', 'Helvetica Neue', 'Roboto', 'sans-serif'!important;
+   text-transform: none;
+   font-size: 16px!important;
+   font-style: normal;
+   padding-right: 5px;
+}
+
+a {
+   text-decoration: none;
+   color: var(--mca-background-orange);
+}
+
+//HACKS
+//todo check with Peter
+//.editProfilelabel {
+//   flex: none;
+//}
+
+//todo check with Peter
+.line {
+   width: 100%;
+   position: absolute;
+   height: 1px;
+   background-color: var(--mca-line-light);
+   border: 1px solid var(--mca-line-light)!important;
+}
+
+//For edit icon
+ion-item::part(detail-icon) {
+   opacity: 1;
+   color: #ffffff;
+   margin-top: 20px;
+}
+
+ion-item::part(detail-icon):active {
+   color: #ADAAA9;
+}
+
+ion-icon.back-arrow {
+   font-size: 32px;
+}
+

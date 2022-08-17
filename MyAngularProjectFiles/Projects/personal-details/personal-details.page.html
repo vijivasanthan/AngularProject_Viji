@@ -1,0 +1,155 @@
+<ion-content>
+
+   <ion-header>
+      <ion-toolbar>
+
+         <ion-buttons slot="start">
+            <ion-back-button *ngIf="showPersonalDetails" defaultHref="/app/tabs-page/account" text="" icon="/assets/icon/arrow-back.svg"></ion-back-button>
+            <ion-button *ngIf="showChangePassword" (click)="panelSwitch('personalDetails')"><ion-icon src="/assets/icon/arrow-back.svg" class="back-arrow"></ion-icon></ion-button>
+<!--            <ion-button (click)="closeModal()"><ion-icon src="/assets/icon/close.svg"></ion-icon></ion-button>-->
+         </ion-buttons>
+
+         <ion-title *ngIf="showPersonalDetails">{{"personal_details.personal_details" | translate}}</ion-title>
+         <ion-title *ngIf="showChangePassword">{{"personal_details.changePassword" | translate}}</ion-title>
+
+         <ion-buttons slot="end">
+         </ion-buttons>
+
+      </ion-toolbar>
+   </ion-header>
+
+   <form *ngIf="showPersonalDetails">
+      <div style="margin-top: 40px;">
+         <ion-row>
+            <ion-col size="12" class="ion-no-padding">
+               <ion-item lines="none">
+                  <ion-label position="stacked">{{"personal_details.user_id" | translate}}</ion-label>
+                     <span>{{ profileData.user_code }}</span>
+               </ion-item>
+            </ion-col>
+         </ion-row>
+
+         <ion-row>
+            <ion-col class="ion-no-padding ion-col-inline">
+               <ion-item lines="full" class="no-min-height;">
+                  <ion-label position="stacked">{{"personal_details.title" | translate}}</ion-label>
+                     <span class="ion-text-capitalize">{{ profileData.salutation }}</span>
+               </ion-item>
+            </ion-col>
+            <ion-col class="ion-no-padding ion-col-inline">
+               <ion-item lines="full" class="no-min-height;">
+                  <ion-label position="stacked">{{"personal_details.name" | translate}}</ion-label>
+                     <span class="ion-text-capitalize">{{ profileData.firstname }} {{ profileData.middlename }} {{ profileData.lastname }}</span>
+               </ion-item>
+            </ion-col>
+         </ion-row>
+
+         <ion-row>
+            <ion-col class="ion-no-padding ion-col-inline">
+               <ion-item lines="none" class="no-min-height">
+                  <ion-label position="stacked">{{"personal_details.birthdate" | translate}}</ion-label>
+                     <span>{{ profileData.meta.birthdate | date:'dd-MM-yyyy' }}</span>
+               </ion-item>
+            </ion-col>
+            <ion-col class="ion-no-padding ion-col-inline">
+               <ion-item lines="none" class="no-min-height">
+                  <ion-label position="stacked">{{"personal_details.placeofbirth" | translate}}</ion-label>
+                     <span class="ion-text-capitalize">{{ profileData.meta.birthplace }}</span>
+               </ion-item>
+            </ion-col>
+         </ion-row>
+
+         <ion-row style="margin-bottom: 20px">
+            <ion-col size="12" class="ion-no-padding">
+               <ion-item>
+                  <ion-label>
+<!--                     <p class="ion-text-wrap">If you’d like to adjust your details then please contact our <a target="_blank" href="https://mcaeurope.org/contact/">customer support</a>.</p>-->
+                     <p class="ion-text-wrap">{{"personal_details.customersupport_text" | translate}}<a target="_blank" href="https://mcaeurope.org/contact/">{{"personal_details.customersupport" | translate}}</a>.</p>
+                  </ion-label>
+               </ion-item>
+            </ion-col>
+         </ion-row>
+
+         <ion-row>
+            <ion-col size="11" class="ion-no-padding" style="padding: 15px">
+               <span class="line"></span>
+            </ion-col>
+         </ion-row>
+      </div>
+
+      <div>
+
+         <ion-item lines="full" detail="true" detailIcon="/assets/icon/pencil.svg" (click)="openVerifyModal('email')">
+            <ion-label position="stacked">{{"personal_details.email" | translate}}</ion-label>
+            <span class="edit ellipsis-txt">{{ profileData.email }}</span>
+         </ion-item>
+
+         <ion-item lines="full" style="margin-top: 10px" detail="true" detailIcon="/assets/icon/pencil.svg" (click)="openVerifyModal('phone')">
+            <ion-label position="stacked" class="editProfilelabel">{{"personal_details.phone" | translate}}</ion-label>
+<!--            <span class="edit ellipsis-txt">{{ profileData.meta.phone }}</span>-->
+            <span class="edit ellipsis-txt">{{ profileData.meta.countrycode }} {{ profileData.meta.phone }}</span>
+         </ion-item>
+
+         <ion-item lines="full" style="margin-top: 10px" detail="true" detailIcon="/assets/icon/pencil.svg" (click)="openVerifyModal('address')">
+            <ion-label position="stacked" class="editProfilelabel">{{"personal_details.address" | translate}}</ion-label>
+               <span class="edit ellipsis-txt ion-text-capitalize">{{ profileData.meta.street + " " + profileData.meta.number}} {{(profileData.meta.addition) ? profileData.meta.addition : ''}}</span>
+               <span class="edit ellipsis-txt">{{ profileData.meta.postcode }}</span>
+               <span class="edit ellipsis-txt ion-text-capitalize">{{ profileData.meta.city }}</span>
+               <span class="edit ellipsis-txt ion-text-capitalize">{{ profileData.meta.country }}</span>
+         </ion-item>
+
+         <ion-row>
+            <ion-col size="12" class="ion-no-padding">
+               <ion-button color="secondary" expand="block" shape="round" style="margin-top:30px;margin-bottom:15px">Upload driver's license</ion-button>
+            </ion-col>
+         </ion-row>
+      </div>
+
+      <ion-text class="changepwdLink" (click)="panelSwitch('changePassword')">{{"personal_details.changePassword" | translate}}</ion-text>
+   </form>
+
+   <form [formGroup]="changepwdForm" *ngIf="showChangePassword" style="margin-top: 100px" novalidate>
+
+      <ion-grid>
+         <ion-row>
+            <ion-col size="12">
+               <h1> {{"personal_details.changePassword" | translate}} </h1>
+            </ion-col>
+         </ion-row>
+         <ion-row>
+            <ion-col size="12">
+               <span>{{"personal_details.changePassword_text" | translate}}</span>
+            </ion-col>
+         </ion-row>
+      </ion-grid>
+
+      <ion-item class="passwordField" lines="none" [class]="changepwdForm.controls.oldPassword.valid || changepwdSubmitted === false ? '' : 'formFieldError'">
+         <ion-label position="stacked">{{"personal_details.oldPassword" | translate}}</ion-label>
+         <app-show-hide-password>
+            <ion-input type="password" name="oldPassword" name="email" formControlName="oldPassword" spellcheck="false" autocapitalize="off" required></ion-input>
+         </app-show-hide-password>
+      </ion-item>
+
+      <ion-item class="passwordField" lines="none" [class]="changepwdForm.controls.newPassword.valid || changepwdSubmitted === false ? '' : 'formFieldError'">
+         <ion-label position="stacked">{{"personal_details.newPassword" | translate}}</ion-label>
+         <app-show-hide-password>
+            <ion-input type="password" name="newPassword" name="email" formControlName="newPassword" spellcheck="false" autocapitalize="off" required></ion-input>
+         </app-show-hide-password>
+      </ion-item>
+      <p class="formFieldMsg" [class]="!changepwdForm.controls.newPassword.errors?.not_strong ? '' : 'error'">{{"personal_details.newPassword_text" | translate}}</p>
+
+      <ion-row *ngIf="apiErrorMsg">
+         <ion-col size="12">
+            <p class="apiErrorMsg">
+               <ion-icon slot="start" name="icon-cross" src="/assets/icon/close.svg" class="msgIcon"></ion-icon>
+               <span>{{apiErrorMsg}}</span>
+            </p>
+         </ion-col>
+      </ion-row>
+
+   <ion-button color="primary" expand="block" shape="round" (click)="changePassword()" [disabled]="!changepwdForm.valid" style="margin-top: 20px">{{"personal_details.changePassword" | translate}}</ion-button>
+   <ion-button color="tertiary" shape="round" expand="block" fill="clear" (click)="panelSwitch('personalDetails')"><span>{{"personal_details.cancel" | translate}}</span></ion-button>
+
+   </form>
+
+</ion-content>
